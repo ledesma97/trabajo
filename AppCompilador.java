@@ -22,40 +22,44 @@ import java.util.regex.Pattern;
 import javax.swing.*;
 import javax.swing.table.DefaultTableModel;
 public class AppCompilador extends JFrame implements ActionListener{
-	// Componentes o Atributos
+	// < Atributos
+	String operation="",op1="",op2="",var="";
 	private JMenuBar barraMenu;
 	private JMenu menuArchivo, MenuAnalisis;
-	// Menu Archivo
+	<<
+	private JPanel panel;
 	private JMenuItem itemNuevo,itemAbrir,itemGuardar,itemSalir,itemAnalisLexico;
 	private JFileChooser ventanaArchivos;
 	private File archivo;
 	private JTextArea areaTexto;
 	private JScrollPane barrita; 
 	private JList<String> tokens;
+	private JList<String> codigo;
 	private JTabbedPane documentos,consola,tabla,tabla2;
 	private String [] titulos ={"Tipo","Nombre","Valor","Alcance","Renglon"};
 	DefaultTableModel modelo = new DefaultTableModel(new Object[0][0],titulos);
 	private String [] titulos2 ={"Operador","Argumento 1","Argumento 2","Resultado"};
 	DefaultTableModel modelo2 = new DefaultTableModel(new Object[0][0],titulos2);
-	public JTable mitabla = new JTable(modelo);
+	public JTable mitabla = new JTable(modelo1);
 	public JTable mitabla2 = new JTable(modelo2);
 	private JButton btnAnalizar;
 	public JLabel homero;
-
+	
 	public static void main(String[] args) {
 		try {
 			UIManager.setLookAndFeel("com.sun.java.swing.plaf.windows.WindowsLookAndFeel");
 		} catch (Exception e) {
 		}
-		new AppCompilador();
+		new Aplicacion();
 	}
-	public AppCompilador() {
+	public Aplicacion() {
 		super("Compilador");
 		setDefaultCloseOperation(EXIT_ON_CLOSE);
-		setIconImage(new ImageIcon("./img/icono.png").getImage());
+		
 		setLayout(new GridLayout(2,0));
 		setSize(600,450);
 		setLocationRelativeTo(null);
+		setResizable(true);
 		creaInterFaz();
 		setVisible(true);
 	}
@@ -83,7 +87,7 @@ public class AppCompilador extends JFrame implements ActionListener{
 		itemAbrir.setIcon(new ImageIcon("./src/img/abrir.png"));
 		itemSalir.setIcon( new ImageIcon("./src/img/salir.png"));
 		itemAnalisLexico.setIcon(new ImageIcon("./src/img/lexico.png"));
-		btnAnalizar = new JButton("ANALIZAR");
+		<btnAnaliza = new JButton("ANALIZA");
 		btnAnalizar.setFont(new Font("Dialog",Font.PLAIN,40));
 		btnAnalizar.addActionListener(this);
 		ventanaArchivos = new JFileChooser();
@@ -110,12 +114,14 @@ public class AppCompilador extends JFrame implements ActionListener{
 		documentos.setIconAt(0, new ImageIcon("./src/img/codigo.png"));
 		add(documentos);
 		tokens=new JList<String>();
+		codigo = new JList<String>();
 		consola.addTab("Consola",new JScrollPane(tokens));
 		consola.setIconAt(0, new ImageIcon("./src/img/consola.png"));
 		consola.addTab("Tabla de simbolos",new JScrollPane(mitabla) );
 		consola.addTab("Cuadruplos",new JScrollPane(mitabla2) );
+		consola.addTab("Codigo Intermedio",new JScrollPane(codigo) );
 		add(consola);
-		consola.setToolTipText("Aqui se muestra el resultado del analisis");
+		consola.setToolTipText("arroja el resultado del analisis");
 	}
 	@Override
 	public void actionPerformed(ActionEvent e) {
@@ -123,13 +129,14 @@ public class AppCompilador extends JFrame implements ActionListener{
 			if(guardar()){
 				Analisis analisador = new Analisis(archivo.getAbsolutePath());
 				tokens.setListData(analisador.getmistokens().toArray( new String [0]));
+				codigo.setListData(analisador.getTabla3().toArray( new String [0] ));
 				modelo = new DefaultTableModel(new Object[0][0],titulos);
 				modelo2 = new DefaultTableModel(new Object[0][0],titulos2);
 				for (int i=0; i < analisador.getTabla().size(); i++) {
 					Identificador id = analisador.getTabla().get(i);						
 					mitabla.setModel(modelo);
 					if(!id.tipo.equals("")) {
-						Object datostabla[]= {id.tipo,id.nombre,id.valor,id.alcance,id.posicion};
+						Object datostabla []= {id.tipo,id.nombre,id.valor,id.alcance,id.posicion};
 
 						modelo.addRow(datostabla);
 					}
@@ -141,9 +148,11 @@ public class AppCompilador extends JFrame implements ActionListener{
 						Object datostabla2[]= {id2.operador,id2.arg1,id2.arg2,id2.resultado};
 						modelo2.addRow(datostabla2);	
 				}
-
+				
 			}
 		
+			
+			
 			return;
 		}
 		if (e.getSource()==itemSalir) {
@@ -196,7 +205,7 @@ public class AppCompilador extends JFrame implements ActionListener{
 	public boolean abrir() {
 		String texto="",linea;
 		try {
-			FileReader fr = new FileReader(archivo) ; 
+			FileReader fr = new FileReade0r(archivos) ; 
 			BufferedReader br= new BufferedReader(fr);
 			while((linea=br.readLine())!=null) 
 				texto+=linea+"\n";

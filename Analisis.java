@@ -7,9 +7,9 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import javax.swing.JOptionPane;
 import javax.swing.plaf.synth.SynthSpinnerUI;
-public class Analiza
+public class Analisis
 {
-	int linea=1;
+	int renglon=1;
 	ArrayList<String> impresion; 
 	ListaDoble<Token> tokens;
 	final Token vacio=new Token("", 9,0);
@@ -17,6 +17,9 @@ public class Analiza
 	ArrayList<Identificador> tablasimbolos = new ArrayList<Identificador>();
 	ArrayList<Arbol> arbol = new ArrayList<Arbol>();
 	ArrayList<String> expresion = new ArrayList<String>();
+	private ArrayList<String> dataCodigo;
+	String format = "%-40s%s%n";
+	String operation = "";
 	String Anterior1Valor;
 	String Anterior2Valor;
 	String Anterior3Valor;
@@ -32,12 +35,15 @@ public class Analiza
 	String Siguiente2Valor;
 	int Siguiente1Tipo;	
 	
-	public ArrayList<Id.> getTabla() {
+	public ArrayList<Identificador> getTabla() {
 		return tablasimbolos ;
 	}
 	
 	public ArrayList<Arbol> getTabla2() {
 		return arbol ;
+	}
+	public ArrayList<String> getTabla3() {
+		return dataCodigo ;
 	}
 	
 	public Analisis(String ruta) {//Recibe el nombre del archivo de texto
@@ -52,7 +58,7 @@ public class Analiza
 			Semantico2(tokens.getInicio());
 			VerificarClase(tokens.getInicio());
 			VerificarClase(tokens.getInicio());
-			
+			GenerarCodigoIntermedio(getTabla2());
 			if(!banderaclase){
 				impresion.add("Falta la inicializaci�n de la clase!");
 			}
@@ -937,6 +943,56 @@ public class Analiza
 	
 	public String jerarquias (int i, String aux){
 		return aux;
+	}
+	
+	public void GenerarCodigoIntermedio(ArrayList<Arbol> tabla) {
+		System.out.println("CODIGO INTERMEDIO");
+		dataCodigo = new ArrayList<String>();
+		dataCodigo.add("                    .MODEL                   small");
+		dataCodigo.add("                    .DATA ");
+		//DECLARAR VARIABLES
+		for (Arbol item : getTabla2()) {
+			dataCodigo.add(item.resultado+"               DW                  0");
+		}
+		dataCodigo.add("                    .CODE");
+		dataCodigo.add("MAIN            PROC                     FAR");
+		dataCodigo.add("                    .STARTUP");
+		//dataCodigo.add("                    ;OPERACION = ''");
+		// OPERACIONES
+		for (int i=0; i < getTabla2().size(); i++) {
+			Arbol id2 = getTabla2().get(i);								
+			System.out.println("Item: "+"[ "+id2.operador+", "+id2.arg1+", "+id2.arg2+", "+id2.resultado+" ]");
+			if(id2.operador.equals("+")) {
+				operation = "ADD";
+				dataCodigo.add("                    ;SUMA");
+			}else if (id2.operador.equals("-")) {
+				operation = "SUB";
+				dataCodigo.add("                    ;RESTA");
+			}else if (id2.operador.equals("*")) {
+				operation = "MUL";
+				dataCodigo.add("                    ;MULTIPLICACIÓN");
+			}else if (id2.operador.equals("/")) {
+				operation = "DIV";
+				dataCodigo.add("                    ;DIVISIÓN");
+			}else if (id2.operador.equals("=")) {
+				dataCodigo.add("                    ;ASIGNACIÓN");
+			}
+			if(!id2.operador.equals("=")) {
+				dataCodigo.add("                    MOV	 AX,"+id2.arg1);
+				dataCodigo.add("                    MOV	 BX,"+id2.arg2);
+				dataCodigo.add("                    "+operation+" BX");
+				dataCodigo.add("                    MOV	 "+id2.resultado+", AX");
+			}else {
+				dataCodigo.add("                    MOV	 AX,"+id2.arg1);
+				dataCodigo.add("                    ADD "+id2.resultado+", AX");
+			}
+		}
+		dataCodigo.add("MAIN            ENDP");
+		// IMPRESION
+		for (String item : dataCodigo) {
+			System.out.println(item);
+		}
+		
 	}
 	
 }
